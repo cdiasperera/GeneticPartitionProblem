@@ -28,23 +28,30 @@ typedef struct {
 typedef int set_t[SIZE_ORIGINAL_SET];
 // FUNCTIONS
 
-// Functions for Genetic Algorithm
+// Functions to initialize program
+void  getInitialSet(set_t set);
+
+// Main functions for Genetic Algorithm
 int   simulateEvolution(set_t set, chromo_t *generation);
 int   performSelection(set_t set, chromo_t *generation);
+int   converges(set_t set, chromo_t *generation, chromo_t solChromo, int *numIterNoImprov);
+void  generateNewGeneration(chromo_t *generation);
 
+// Functions to manipulate choromosomes
 void  sortChromos(chromo_t *generation);
 void  swap(int i, int j, chromo_t *generation);
+void  copyChromosome(chromo_t *dst, chromo_t src);
+void  replaceChromosomes(int *idxStrongChromos, int *idxWeakChromos, chromo_t *generation);
 
-void  getInitialSet(set_t set);
+// Functions to modify Genes
 void  generateRandomChromosome(chromo_t *chromosome, set_t set);
 void  mutateSingleGene(chromo_t chromosome);
 void  chromoCrossOver(chromo_t chromo1, chromo_t chromo2, set_t set);
+
+// Functions related to fitness
 int   heightOfSet(chromo_t chromosome, bool chosenSet, set_t orignalSet);
 int   measureFitness(chromo_t chromosome, set_t set);
-void  replaceChromosomes(int *idxStrongChromos, int *idxWeakChromos, chromo_t *generation);
-void  copyChromosome(chromo_t *dst, chromo_t src);
-int   converges(set_t set, chromo_t *generation, chromo_t solChromo, int *numIterNoImprov);
-void  generateNewGeneration(chromo_t *generation);
+
 // Utlity Functions
 void printChromosome(chromo_t chromosome);
 void printOriginalSet(set_t set);

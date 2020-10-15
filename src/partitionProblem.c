@@ -1,5 +1,11 @@
 #include "partitionProblem.h"
 
+void getInitialSet(set_t set) {
+  for (int i = 0; i < SIZE_ORIGINAL_SET; i++) {
+    scanf("%d", set + i);
+  }
+}
+
 /* Simulates evolution of the chromosomes till a solution is found or we have
  * gone many iterations without improvement.
  */
@@ -48,6 +54,16 @@ int  performSelection(set_t set, chromo_t *generation) {
   return strongChromos[0];
 }
 
+// Check if our current generation has converged to a solution
+int converges(set_t set, chromo_t *generation, chromo_t solChromo, int *numIterNoImprov) {
+  return 0;
+}
+
+// Randomly mutates previous generation. Makes sure best chromosome is unchanged
+void  generateNewGeneration(chromo_t *generation) {
+  return;
+}
+
 void sortChromos(chromo_t *generation) {
   /* Use selection sort since the array is so small that O(n log n) isn't that
    * useful
@@ -81,31 +97,6 @@ void copyChromosome(chromo_t *dst, chromo_t src) {
 void replaceChromosomes(int *strongChromos, int *weakChromos, chromo_t *generation) {
   for (int i = 0; i < NUM_CHROMOSOMES_REPLACED; i++) {
     copyChromosome(generation + weakChromos[i], generation[strongChromos[i]]);
-  }
-}
-
-// Randomly mutates previous generation. Makes sure best chromosome is unchanged
-void  generateNewGeneration(chromo_t *generation) {
-  return;
-}
-
-void printChromosome(chromo_t chromosome) {
-  for(int i = 0; i < CHROMOSOME_LENGTH; i++) {
-    printf("%d ", chromosome.genes[i]);
-  }
-  printf("\n");
-}
-
-void printOriginalSet(set_t set) {
-  for (int i = 0; i < SIZE_ORIGINAL_SET; i++) {
-    printf("%d ", set[i]);
-  }
-  printf("\n");
-}
-
-void getInitialSet(set_t set) {
-  for (int i = 0; i < SIZE_ORIGINAL_SET; i++) {
-    scanf("%d", set + i);
   }
 }
 
@@ -170,7 +161,16 @@ int measureFitness(chromo_t chromosome, set_t set) {
   return abs(set1Height - set2Height);
 }
 
+void printChromosome(chromo_t chromosome) {
+  for(int i = 0; i < CHROMOSOME_LENGTH; i++) {
+    printf("%d ", chromosome.genes[i]);
+  }
+  printf("\n");
+}
 
-int converges(set_t set, chromo_t *generation, chromo_t solChromo, int *numIterNoImprov) {
-  return 0;
+void printOriginalSet(set_t set) {
+  for (int i = 0; i < SIZE_ORIGINAL_SET; i++) {
+    printf("%d ", set[i]);
+  }
+  printf("\n");
 }
