@@ -3,17 +3,17 @@
 /* Simulates evolution of the chromosomes till a solution is found or we have
  * gone many iterations without improvement.
  */
-int simulateEvolution(set_t originalSet, chromo_t *generation) {
+int simulateEvolution(set_t set, chromo_t *generation) {
   int numIter = 0;
   int numIterNoImprov = 0;
   
   bool solutionFound = false;
-  gene_t solChromo[CHROMOSOME_LENGTH];
+  chromo_t solChromo;
   
   while (!solutionFound) {
     numIter++;
-    performSelection(originalSet, generation);
-    solutionFound = checkForConvergence(originalSet, generation, solChromo, &numIterNoImprov);
+    performSelection(set, generation);
+    solutionFound = converges(set, generation, solChromo, &numIterNoImprov);
 
     if (solutionFound) {
       printChromosome(solChromo);
@@ -27,50 +27,61 @@ int simulateEvolution(set_t originalSet, chromo_t *generation) {
 }
 
 // Replace the weakest two chromosomes with the strongest chromosomes
-int  performSelection(set_t originalSet, chromo_t *generation) {
+int  performSelection(set_t set, chromo_t *generation) {
+
+  //Sort array by fitness
+  sortChromos(generation);
+
+  //  Indexes of chromosomes.
+  // Weakest chromosome, 2nd weakest chromosome, ...
   int weakChromos[NUM_CHROMOSOMES_REPLACED];
+  // Strongest chromosome, 2nd strongest chromosome, ...
   int strongChromos[NUM_CHROMOSOMES_REPLACED];
 
-  // strongest, 2nd strongest, weakest, 2nd weakest
-  int strongChromoFitness[NUM_CHROMOSOMES_REPLACED];
-  int weakChromoFitness[NUM_CHROMOSOMES_REPLACED];
-
-  // Initialize extremeHeights
   for (int i = 0; i < NUM_CHROMOSOMES_REPLACED; i++) {
-    strongChromoFitness[i] = __INT_MAX__;
-    weakChromoFitness[i] = 0;
-  }
-
-  // Find strongest/weakest chromosomes
-  for (int i = 0; i < POP_SIZE; i++) {
-    bool *chromosome = generation[i];
-    int chromosomeFitness = measureFitness(chromosome, originalSet);
-    if (chromosomeFitness > strongChromoFitness[0]) {
-      strongChromos[1] = strongChromos[0];
-      strongChromos[0] = i;
-
-      strongChromoFitness[1] = strongChromoFitness[0];
-      strongChromoFitness[0] = chromosomeFitness;
-    } else if (chromosomeFitness > strongChromoFitness[1]) {
-      strongChromos[1] = i;
-
-      strongChromoFitness[1] = chromosomeFitness;
-    } else if (chromosomeFitness < weakChromoFitness[0]) {
-      weakChromos[1] = weakChromoFitness[0];
-      weakChromos[0] = i;
-
-      weakChromoFitness[1] = weakChromoFitness[0];
-      weakChromoFitness[0] = chromosomeFitness;
-    } else if (chromosomeFitness < weakChromoFitness[1]) {
-      weakChromos[1] = i;
-
-      weakChromoFitness[1] = chromosomeFitness;
-    }
+    weakChromos[i]  = POP_SIZE-1-i;
+    strongChromos[i] = i;
   }
 
   replaceChromosomes(strongChromos, weakChromos, generation);
 
   return strongChromos[0];
+}
+
+void sortChromos(chromo_t *generation) {
+  /* Use selection sort since the array is so small that O(n log n) isn't that
+   * useful
+   */
+  for (int i = 0; i < POP_SIZE; i++) {
+    int min = i;
+    for (int j = i; j < POP_SIZE; j++) {
+      // Find smallest element
+      if (generation[i].fitness < generation[min].fitness) {
+        min = j;
+      }
+    }
+    swap(i, min, generation);
+  }
+}
+
+void swap(int i, int j, chromo_t *generation) {
+  chromo_t temp;
+  copyChromosome(temp, generation[i]);
+  copyChromosome(generation[i], generation[j]);
+  copyChromosome(generation[j], temp);
+}
+
+void copyChromosome(chromo_t dst, chromo_t src) {
+  for (int i = 0; i < CHROMOSOME_LENGTH; i++) {
+    dst.genes[i] = src.genes[i];
+  }
+  dst.fitness = src.fitness;
+}
+
+void replaceChromosomes(int *strongChromos, int *weakChromos, chromo_t *generation) {
+  for (int i = 0; i < NUM_CHROMOSOMES_REPLACED; i++) {
+    copyChromosome(generation[weakChromos[i]], generation[strongChromos[i]]);
+  }
 }
 
 // Randomly mutates previous generation. Makes sure best chromosome is unchanged
@@ -80,47 +91,55 @@ void  generateNewGeneration(chromo_t *generation) {
 
 void printChromosome(chromo_t chromosome) {
   for(int i = 0; i < CHROMOSOME_LENGTH; i++) {
-    printf("%d ", chromosome[i]);
+    printf("%d ", chromosome.genes[i]);
   }
   printf("\n");
 }
 
-void printOriginalSet(set_t originalSet) {
+void printOriginalSet(set_t set) {
   for (int i = 0; i < SIZE_ORIGINAL_SET; i++) {
-    printf("%d ", originalSet[i]);
+    printf("%d ", set[i]);
   }
   printf("\n");
 }
 
-void getInitialSet(set_t originalSet) {
+void getInitialSet(set_t set) {
   for (int i = 0; i < SIZE_ORIGINAL_SET; i++) {
-    scanf("%d", originalSet + i);
+    scanf("%d", set + i);
   }
 }
 
-void generateRandomChromosome(chromo_t chromosome) {
+void generateRandomChromosome(chromo_t *chromosome, set_t set) {
   for (int i = 0; i < CHROMOSOME_LENGTH; i++) {
-    chromosome[i] = rand() > (RAND_MAX / 2);
+    chromosome->genes[i] = rand() > (RAND_MAX / 2);
   }
+
+  // Calculate fitness
+  chromosome->fitness = 0;
+  chromosome->fitness = measureFitness(*chromosome, set);
 }
 
-void mutateSinglegene(chromo_t chromosome) {
+void mutateSinglegene(chromo_t chromosome, set_t set) {
   int geneToMutate = rand() % CHROMOSOME_LENGTH;
 
-  chromosome[geneToMutate] = (chromosome[geneToMutate] + 1) % 2;
+  chromosome.genes[geneToMutate] = (chromosome.genes[geneToMutate] + 1) % 2;
+  chromosome.fitness = measureFitness(chromosome, set);
 }
 
-void mutateChromosomeCrossOver(bool *chromosome1, bool *chromosome2) {
+void chromoCrossOver(chromo_t chromo1, chromo_t chromo2, set_t set) {
   // There is a potential for simple gene swaps, as crossOverLocation could be 0
   int crossOverLocation = rand() % CHROMOSOME_LENGTH;
 
   // Put the tail of chromosome1 into temp, as it will be replaced first
-  bool tempChromosome[CHROMOSOME_LENGTH];
+  chromo_t tempChromo;
   for (int i = crossOverLocation; i < CHROMOSOME_LENGTH; i++) {
-    tempChromosome[i] = chromosome1[i];
-    chromosome1[i] = chromosome2[i];
-    chromosome2[i] = tempChromosome[i];
+    tempChromo.genes[i] = chromo1.genes[i];
+    chromo1.genes[i] = chromo2.genes[i];
+    chromo2.genes[i] = tempChromo.genes[i];
   }
+
+  chromo1.fitness = measureFitness(chromo1, set);
+  chromo2.fitness = measureFitness(chromo2, set);
 
 }
 
@@ -134,51 +153,24 @@ void mutateChromosomeCrossOver(bool *chromosome1, bool *chromosome2) {
   * Set 1: All the integers that correspond to "true" genes in the chromosome
   * Set 2: All the integers that correspond to "false" genes in the chromosome
   */
-int heightOfSet(bool *chromosome, bool chosenSet, int *originalSet) {
+int heightOfSet(chromo_t chromosome, bool chosenSet, set_t set) {
   int height = 0;
   for (int i = 0; i < CHROMOSOME_LENGTH; i++) {
-    if (chromosome[i] == chosenSet) {
-      height += originalSet[i];
+    if (chromosome.genes[i] == chosenSet) {
+      height += set[i];
     }
   }
   return height;
 }
 
-int measureFitness(bool *chromosome, int *originalSet) {
-  int set1Height = heightOfSet(chromosome, true, originalSet);
-  int set2Height = heightOfSet(chromosome, false, originalSet);
+int measureFitness(chromo_t chromosome, set_t set) {
+  int set1Height = heightOfSet(chromosome, true, set);
+  int set2Height = heightOfSet(chromosome, false, set);
 
   return abs(set1Height - set2Height);
 }
 
-int *checkFitnessOfAllChromosomes(set_t originalSet, chromo_t *generation, int *allHeights) {
-  for (int i = 0; i < POP_SIZE; i++) {
-    allHeights[i] = measureFitness(generation[i], originalSet);
-  }
-  return allHeights;
-}
 
-void replaceChromosomes(int *strongChromos, int *weakChromos, chromo_t *generation) {
-  for (int i = 0; i < NUM_CHROMOSOMES_REPLACED; i++) {
-    copyChromosome(generation[weakChromos[i]], generation[strongChromos[i]]);
-  }
-}
-
-void copyChromosome(chromo_t dst, chromo_t src) {
-  return;
-}
-
-int checkForConvergence(set_t originalSet, chromo_t *generation, chromo_t solChromo, int *numIterNoImprov) {
-  int allHeights[POP_SIZE];
-  checkFitnessOfAllChromosomes(originalSet, generation, allHeights);
-
-  // Check if we have a height of 0, i.e: solved problem
-  for (int i = 1; i < POP_SIZE; i++) {
-    if (allHeights[i] == 0) {
-      copyChromosome(solChromo, generation[i]);
-      return 1;
-    }
-  }
-
+int converges(set_t set, chromo_t *generation, chromo_t solChromo, int *numIterNoImprov) {
   return 0;
 }

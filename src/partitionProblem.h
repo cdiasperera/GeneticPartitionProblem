@@ -19,24 +19,32 @@
 
 // TYPES
 typedef bool gene_t;
-typedef gene_t chromo_t[CHROMOSOME_LENGTH];
-typedef int *set_t;
+
+typedef struct {
+  gene_t genes[CHROMOSOME_LENGTH];
+  int fitness;
+} chromo_t;
+
+typedef int set_t[SIZE_ORIGINAL_SET];
 // FUNCTIONS
 
 // Functions for Genetic Algorithm
-void  getInitialSet(set_t originalSet);
-void  generateRandomChromosome(chromo_t chromosome);
+int   simulateEvolution(set_t set, chromo_t *generation);
+int   performSelection(set_t set, chromo_t *generation);
+
+void  sortChromos(chromo_t *generation);
+void  swap(int i, int j, chromo_t *generation);
+
+void  getInitialSet(set_t set);
+void  generateRandomChromosome(chromo_t *chromosome, set_t set);
 void  mutateSingleGene(chromo_t chromosome);
-void  mutateChromosomeCrossOver(chromo_t chromosome1, chromo_t chromosome2);
+void  chromoCrossOver(chromo_t chromo1, chromo_t chromo2, set_t set);
 int   heightOfSet(chromo_t chromosome, bool chosenSet, set_t orignalSet);
-int   measureFitness(chromo_t chromosome, set_t originalSet);
+int   measureFitness(chromo_t chromosome, set_t set);
 void  replaceChromosomes(int *idxStrongChromos, int *idxWeakChromos, chromo_t *generation);
 void  copyChromosome(chromo_t dest, chromo_t src);
-int   performSelection(set_t originalSet, chromo_t *generation);
-int   checkForConvergence(set_t originalSet, chromo_t *generation, chromo_t solChromo, int *numIterNoImprov);
+int   converges(set_t set, chromo_t *generation, chromo_t solChromo, int *numIterNoImprov);
 void  generateNewGeneration(chromo_t *generation);
-int   simulateEvolution(set_t originalSet, chromo_t *generation);
-
 // Utlity Functions
-void printChromosome(bool *chromosome);
-void printOriginalSet(int *originalSet);
+void printChromosome(chromo_t chromosome);
+void printOriginalSet(set_t set);

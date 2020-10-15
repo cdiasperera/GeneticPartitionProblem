@@ -14,31 +14,31 @@
 
 #include "partitionProblem.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 int main(int argc, char *argv[]) {
   time_t t;
   // Set seed for random generator
   srand((unsigned int) time(&t));
 
-  int originalSet[SIZE_ORIGINAL_SET];
-  bool generation[POP_SIZE][CHROMOSOME_LENGTH];
+  set_t set;
+  chromo_t generation[POP_SIZE];
 
-  getInitialSet(originalSet);
+  getInitialSet(set);
 #if DEBUG 
+  printOriginalSet(set);
   for (int i = 0; i < POP_SIZE; i++){
-    generateRandomChromosome(generation[i]);
+    generateRandomChromosome(&generation[i], set);
+    printf("Chromosome %d: ", i);
+    printChromosome(generation[i]);
+    printf("fitness: %d\n", generation[i].fitness);
   }
-
-  int chosenChromosome = CHROMOSOME_LENGTH - 1;
-  printOriginalSet(originalSet);
-  printChromosome(generation[chosenChromosome]);
-  printf("fitness: %d\n", measureFitness(generation[chosenChromosome], originalSet));
 #endif
 
-  int numIterations = simulateEvolution(originalSet, generation);
+#if !DEBUG
+  int numIterations = simulateEvolution(set, generation);
 
   printf("Number of Iterations: %d\n", numIterations);
-
+#endif
   return 0;
 }

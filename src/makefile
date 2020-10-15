@@ -6,7 +6,7 @@ $(fileName).o: $(fileName).c $(fileName).h makefile
 	gcc -std=c99 -g -Wall -pedantic -c $(fileName).c -o $(fileName).o -I.
 
 test: $(fileName)
-	echo "1 2 3 4" | ./$(fileName) > output.txt
+	./$(fileName).exe < test.in
 
 clean:
 	rm -f $(fileName).o $(fileName) $(fileName).exe
