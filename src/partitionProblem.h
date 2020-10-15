@@ -9,7 +9,7 @@
 // CONSTANTS
 #define SIZE_ORIGINAL_SET 4 // The number of integers in the original set
 #define CHROMOSOME_LENGTH SIZE_ORIGINAL_SET // The length of each chromosome
-#define POP_SIZE 10 // The number of chromosomes in a generation
+#define POP_SIZE 5 // The number of chromosomes in a generation
 
 #define MAX_ITER_WITHOUT_IMPROVEMENT 10 // The number of iterations allowed without fitness improvement
 
@@ -42,7 +42,7 @@ void  chromoCrossOver(chromo_t chromo1, chromo_t chromo2, set_t set);
 int   heightOfSet(chromo_t chromosome, bool chosenSet, set_t orignalSet);
 int   measureFitness(chromo_t chromosome, set_t set);
 void  replaceChromosomes(int *idxStrongChromos, int *idxWeakChromos, chromo_t *generation);
-void  copyChromosome(chromo_t dest, chromo_t src);
+void  copyChromosome(chromo_t *dst, chromo_t src);
 int   converges(set_t set, chromo_t *generation, chromo_t solChromo, int *numIterNoImprov);
 void  generateNewGeneration(chromo_t *generation);
 // Utlity Functions

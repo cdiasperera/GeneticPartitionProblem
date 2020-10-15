@@ -27,12 +27,31 @@ int main(int argc, char *argv[]) {
   getInitialSet(set);
 #if DEBUG 
   printOriginalSet(set);
+  
+  printf("\nGENERATION\n");
   for (int i = 0; i < POP_SIZE; i++){
     generateRandomChromosome(&generation[i], set);
     printf("Chromosome %d: ", i);
     printChromosome(generation[i]);
     printf("fitness: %d\n", generation[i].fitness);
   }
+
+  printf("\nAFTER SORTING\n");
+  sortChromos(generation);
+  for (int i = 0; i < POP_SIZE; i++){
+    printf("Chromosome %d: ", i);
+    printChromosome(generation[i]);
+    printf("fitness: %d\n", generation[i].fitness);
+  }
+
+  printf("\nAFTER SELECTION\n");
+  performSelection(set, generation);
+  for (int i = 0; i < POP_SIZE; i++){
+    printf("Chromosome %d: ", i);
+    printChromosome(generation[i]);
+    printf("fitness: %d\n", generation[i].fitness);
+  }
+  
 #endif
 
 #if !DEBUG

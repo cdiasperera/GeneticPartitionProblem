@@ -29,7 +29,7 @@ int simulateEvolution(set_t set, chromo_t *generation) {
 // Replace the weakest two chromosomes with the strongest chromosomes
 int  performSelection(set_t set, chromo_t *generation) {
 
-  //Sort array by fitness
+  //Sort array by fitness, higher fitness, lower value, lower index
   sortChromos(generation);
 
   //  Indexes of chromosomes.
@@ -56,7 +56,7 @@ void sortChromos(chromo_t *generation) {
     int min = i;
     for (int j = i; j < POP_SIZE; j++) {
       // Find smallest element
-      if (generation[i].fitness < generation[min].fitness) {
+      if (generation[j].fitness < generation[min].fitness) {
         min = j;
       }
     }
@@ -66,21 +66,21 @@ void sortChromos(chromo_t *generation) {
 
 void swap(int i, int j, chromo_t *generation) {
   chromo_t temp;
-  copyChromosome(temp, generation[i]);
-  copyChromosome(generation[i], generation[j]);
-  copyChromosome(generation[j], temp);
+  copyChromosome(&temp, generation[i]);
+  copyChromosome(generation+i, generation[j]);
+  copyChromosome(generation+j, temp);
 }
 
-void copyChromosome(chromo_t dst, chromo_t src) {
+void copyChromosome(chromo_t *dst, chromo_t src) {
   for (int i = 0; i < CHROMOSOME_LENGTH; i++) {
-    dst.genes[i] = src.genes[i];
+    dst->genes[i] = src.genes[i];
   }
-  dst.fitness = src.fitness;
+  dst->fitness = src.fitness;
 }
 
 void replaceChromosomes(int *strongChromos, int *weakChromos, chromo_t *generation) {
   for (int i = 0; i < NUM_CHROMOSOMES_REPLACED; i++) {
-    copyChromosome(generation[weakChromos[i]], generation[strongChromos[i]]);
+    copyChromosome(generation + weakChromos[i], generation[strongChromos[i]]);
   }
 }
 
