@@ -51,7 +51,6 @@ int main(int argc, char *argv[]) {
     printChromosome(generation[i]);
     printf("fitness: %d\n", generation[i].fitness);
   }
-  
 #endif
 
 #if !DEBUG

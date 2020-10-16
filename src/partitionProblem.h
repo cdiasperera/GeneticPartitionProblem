@@ -13,6 +13,9 @@
 
 #define MAX_ITER_WITHOUT_IMPROVEMENT 10 // The number of iterations allowed without fitness improvement
 
+#define BEST_CHROMO 0
+#define WORST_CHROMO POP_SIZE - 1
+
 #define NUM_CROSS_OVERS 1
 #define NUM_MUTATIONS 1
 #define NUM_CHROMOSOMES_REPLACED 2
@@ -34,7 +37,7 @@ void  getInitialSet(set_t set);
 // Main functions for Genetic Algorithm
 int   simulateEvolution(set_t set, chromo_t *generation);
 int   performSelection(set_t set, chromo_t *generation);
-int   converges(set_t set, chromo_t *generation, chromo_t solChromo, int *numIterNoImprov);
+int   converges(set_t set, chromo_t *generation, chromo_t *solChromo, int *numIterNoImprov, int prevBestFitness);
 void  generateNewGeneration(chromo_t *generation);
 
 // Functions to manipulate choromosomes
