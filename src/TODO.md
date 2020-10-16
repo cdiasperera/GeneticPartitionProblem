@@ -21,3 +21,4 @@
 * Make a randGen Function
 * Make measurefitness more efficient
 * Make a struct for chromosomes <- Gonna be annoying
+* Make sure all assignments are complete
