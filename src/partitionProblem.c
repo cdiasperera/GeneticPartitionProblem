@@ -25,7 +25,7 @@ int simulateEvolution(set_t set, chromo_t *generation) {
       printChromosome(solChromo);
       return numIter;
     } else {
-      generateNewGeneration(generation);
+      generateNewGeneration(generation, set);
     } 
   }
 
@@ -76,7 +76,33 @@ int converges(set_t set, chromo_t *generation, chromo_t *solChromo, int *numIter
 }
 
 // Randomly mutates previous generation. Makes sure best chromosome is unchanged
-void  generateNewGeneration(chromo_t *generation) {
+void  generateNewGeneration(chromo_t *generation, set_t set) {
+	// leave the best chromosome unchanged
+	// mutate n-number of chromosomes
+	// crossover-mutation of n- number of chromosomes
+ // generate n random numbers, don`t overlap them. 
+ // make sure those numbers are within the indix of your array. 
+ // modify those specific chromosomes,
+  int n;
+  sortChromos(generation);
+  
+  for(int i=0; i<NUM_CROSS_OVERS; i++){
+      int n1= rand() % POP_SIZE;
+      int n2= rand() % POP_SIZE;
+	  while(n1==0){
+		  n1= rand() % POP_SIZE;
+	  }
+	  while (n2==0){
+		   n2= rand() % POP_SIZE; 
+	  }
+	  // perform crossovers
+
+	chromoCrossOver(&generation[n1], &generation[n2], set);
+  }
+  for(int i=0; i<NUM_MUTATIONS; i++){ // mutating mutation number of genes
+	  n= rand() % POP_SIZE;
+	  mutateSingleGene(&generation[n], set);
+  }
   return;
 }
 
@@ -126,27 +152,27 @@ void generateRandomChromosome(chromo_t *chromosome, set_t set) {
   chromosome->fitness = measureFitness(*chromosome, set);
 }
 
-void mutateSinglegene(chromo_t chromosome, set_t set) {
+void mutateSingleGene(chromo_t *chromosome, set_t set) {
   int geneToMutate = rand() % CHROMOSOME_LENGTH;
 
-  chromosome.genes[geneToMutate] = (chromosome.genes[geneToMutate] + 1) % 2;
-  chromosome.fitness = measureFitness(chromosome, set);
+  chromosome->genes[geneToMutate] = (chromosome->genes[geneToMutate] + 1) % 2;
+  chromosome->fitness = measureFitness(*chromosome, set);
 }
 
-void chromoCrossOver(chromo_t chromo1, chromo_t chromo2, set_t set) {
+void chromoCrossOver(chromo_t *chromo1, chromo_t *chromo2, set_t set) {
   // There is a potential for simple gene swaps, as crossOverLocation could be 0
   int crossOverLocation = rand() % CHROMOSOME_LENGTH;
 
   // Put the tail of chromosome1 into temp, as it will be replaced first
   chromo_t tempChromo;
   for (int i = crossOverLocation; i < CHROMOSOME_LENGTH; i++) {
-    tempChromo.genes[i] = chromo1.genes[i];
-    chromo1.genes[i] = chromo2.genes[i];
-    chromo2.genes[i] = tempChromo.genes[i];
+    tempChromo.genes[i] = chromo1->genes[i];
+    chromo1->genes[i] = chromo2->genes[i];
+    chromo2->genes[i] = tempChromo.genes[i];
   }
 
-  chromo1.fitness = measureFitness(chromo1, set);
-  chromo2.fitness = measureFitness(chromo2, set);
+  chromo1->fitness = measureFitness(*chromo1, set);
+  chromo2->fitness = measureFitness(*chromo2, set);
 
 }
 
