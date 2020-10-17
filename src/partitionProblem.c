@@ -18,15 +18,15 @@ int simulateEvolution(set_t set, chromo_t *generation) {
   
   while (!solutionFound) {
     numIter++;
-    performSelection(set, generation);
-    solutionFound = converges(set, generation, solChromo, &numIterNoImprov);
+    int prevBestFitness = performSelection(set, generation);
+    solutionFound = converges(set, generation, &solChromo, &numIterNoImprov, prevBestFitness);
 
     if (solutionFound) {
       printChromosome(solChromo);
       return numIter;
     } else {
       generateNewGeneration(generation);
-    }
+    } 
   }
 
   return numIter;
@@ -45,17 +45,33 @@ int  performSelection(set_t set, chromo_t *generation) {
   int strongChromos[NUM_CHROMOSOMES_REPLACED];
 
   for (int i = 0; i < NUM_CHROMOSOMES_REPLACED; i++) {
-    weakChromos[i]  = POP_SIZE-1-i;
+    weakChromos[i]  = WORST_CHROMO-i;
     strongChromos[i] = i;
   }
 
   replaceChromosomes(strongChromos, weakChromos, generation);
 
-  return strongChromos[0];
+  return generation[0].fitness;
 }
 
 // Check if our current generation has converged to a solution
-int converges(set_t set, chromo_t *generation, chromo_t solChromo, int *numIterNoImprov) {
+int converges(set_t set, chromo_t *generation, chromo_t *solChromo, int *numIterNoImprov, int prevBestFitness) {
+  sortChromos(generation);
+
+  // Check if best chromosome has made improvement. Best chromo = firt chromo
+  if (generation[BEST_CHROMO]. fitness < prevBestFitness) {
+    *numIterNoImprov = 0;
+  } else {
+    (*numIterNoImprov)++;
+  }
+
+  if (generation[BEST_CHROMO].fitness == 0 || *numIterNoImprov > MAX_ITER_WITHOUT_IMPROVEMENT) {
+    // Either found solution, or we havne't made progress in a while
+    copyChromosome(solChromo, generation[BEST_CHROMO]);
+    return 1;
+  }
+
+  // No solution
   return 0;
 }
 
