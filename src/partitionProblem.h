@@ -16,8 +16,9 @@
 #define BEST_CHROMO 0
 #define WORST_CHROMO POP_SIZE - 1
 
+
 #define NUM_CROSS_OVERS 1
-#define NUM_MUTATIONS 1
+#define NUM_MUTATIONS 0
 #define NUM_CHROMOSOMES_REPLACED 2
 
 // TYPES
@@ -38,7 +39,7 @@ void  getInitialSet(set_t set);
 int   simulateEvolution(set_t set, chromo_t *generation);
 int   performSelection(set_t set, chromo_t *generation);
 int   converges(set_t set, chromo_t *generation, chromo_t *solChromo, int *numIterNoImprov, int prevBestFitness);
-void  generateNewGeneration(chromo_t *generation);
+void  generateNewGeneration(chromo_t *generation, set_t set);
 
 // Functions to manipulate choromosomes
 void  sortChromos(chromo_t *generation);
@@ -48,8 +49,8 @@ void  replaceChromosomes(int *idxStrongChromos, int *idxWeakChromos, chromo_t *g
 
 // Functions to modify Genes
 void  generateRandomChromosome(chromo_t *chromosome, set_t set);
-void  mutateSingleGene(chromo_t chromosome);
-void  chromoCrossOver(chromo_t chromo1, chromo_t chromo2, set_t set);
+void  mutateSingleGene(chromo_t *chromosome, set_t set);
+void  chromoCrossOver(chromo_t *chromo1, chromo_t *chromo2, set_t set);
 
 // Functions related to fitness
 int   heightOfSet(chromo_t chromosome, bool chosenSet, set_t orignalSet);
