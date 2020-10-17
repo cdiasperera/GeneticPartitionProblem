@@ -9,13 +9,17 @@ void getInitialSet(set_t set) {
 /* Simulates evolution of the chromosomes till a solution is found or we have
  * gone many iterations without improvement.
  */
-int simulateEvolution(set_t set, chromo_t *generation) {
+int simulateEvolution(set_t set) {
   int numIter = 0;
   int numIterNoImprov = 0;
   
   bool solutionFound = false;
   chromo_t solChromo;
   
+  chromo_t generation[POP_SIZE];
+
+  makeInitialGenration(generation, set);
+
   while (!solutionFound) {
     numIter++;
     int prevBestFitness = performSelection(set, generation);
@@ -32,12 +36,15 @@ int simulateEvolution(set_t set, chromo_t *generation) {
   return numIter;
 }
 
+void makeInitialGenration(chromo_t *generation, set_t set) {
+  for (int i = 0; i < POP_SIZE; i++){
+    generateRandomChromosome(&generation[i], set);
+  }
+  return;
+}
+
 // Replace the weakest two chromosomes with the strongest chromosomes
 int  performSelection(set_t set, chromo_t *generation) {
-
-  //Sort array by fitness, higher fitness, lower value, lower index
-  sortChromos(generation);
-
   //  Indexes of chromosomes.
   // Weakest chromosome, 2nd weakest chromosome, ...
   int weakChromos[NUM_CHROMOSOMES_REPLACED];
@@ -50,7 +57,9 @@ int  performSelection(set_t set, chromo_t *generation) {
   }
 
   replaceChromosomes(strongChromos, weakChromos, generation);
-
+  
+  // We modified our population, so we need to sort it.
+  sortChromos(generation);
   return generation[0].fitness;
 }
 
@@ -75,35 +84,41 @@ int converges(set_t set, chromo_t *generation, chromo_t *solChromo, int *numIter
   return 0;
 }
 
-// Randomly mutates previous generation. Makes sure best chromosome is unchanged
+/* Randomly mutates previous generation. Makes sure best chromosome is unchanged
+ * Makes sure the resulting generation is sorted as well.
+ * Note that the multiple mutations can occur on the same chromosome. Sometimes
+ * this would result in an original mutation being reverted. This is intended.
+ */
 void  generateNewGeneration(chromo_t *generation, set_t set) {
-	// leave the best chromosome unchanged
-	// mutate n-number of chromosomes
-	// crossover-mutation of n- number of chromosomes
- // generate n random numbers, don`t overlap them. 
- // make sure those numbers are within the indix of your array. 
- // modify those specific chromosomes,
-  int n;
-  sortChromos(generation);
-  
-  for(int i=0; i<NUM_CROSS_OVERS; i++){
-      int n1= rand() % POP_SIZE;
-      int n2= rand() % POP_SIZE;
-	  while(n1==0){
-		  n1= rand() % POP_SIZE;
-	  }
-	  while (n2==0){
-		   n2= rand() % POP_SIZE; 
-	  }
-	  // perform crossovers
+  // Perform cross-overs, i.e: sexual reproduction.
+  for(int i = 0; i < NUM_CROSS_OVERS; i++){
+    int mutator1;
+    int mutator2;
 
-	chromoCrossOver(&generation[n1], &generation[n2], set);
+    // Determine which chromosomes to cross over. Do not cross over best one.
+	  do {
+		  mutator1 = rand() % POP_SIZE;
+	  } while (mutator1 == 0);
+
+	  do {
+		   mutator2 = rand() % POP_SIZE; 
+	  } while (mutator2 == 0);
+
+	  chromoCrossOver(&generation[mutator1], &generation[mutator2], set);
   }
-  for(int i=0; i<NUM_MUTATIONS; i++){ // mutating mutation number of genes
-	  n= rand() % POP_SIZE;
-	  mutateSingleGene(&generation[n], set);
+
+  // Perform random mutations.
+  for(int i = 0; i < NUM_MUTATIONS; i++){
+    // As before, avoid mutating best chromo
+    int mutator;
+    do {
+      mutator = rand() % POP_SIZE;
+    } while (mutator == 0);
+
+	  mutateSingleGene(&generation[mutator], set);
   }
-  return;
+  // Sort this generation by fitness
+  sortChromos(generation);
 }
 
 void sortChromos(chromo_t *generation) {

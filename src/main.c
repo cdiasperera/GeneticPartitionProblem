@@ -14,7 +14,7 @@
 
 #include "partitionProblem.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 int main(int argc, char *argv[]) {
   time_t t;
@@ -35,7 +35,6 @@ int main(int argc, char *argv[]) {
     printChromosome(generation[i]);
     printf("fitness: %d\n", generation[i].fitness);
   }
-
   printf("\nAFTER SORTING\n");
   sortChromos(generation);
   for (int i = 0; i < POP_SIZE; i++){
@@ -62,7 +61,7 @@ int main(int argc, char *argv[]) {
 #endif
 
 #if !DEBUG
-  int numIterations = simulateEvolution(set, generation);
+  int numIterations = simulateEvolution(set);
 
   printf("Number of Iterations: %d\n", numIterations);
 #endif

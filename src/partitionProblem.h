@@ -7,9 +7,9 @@
 
 
 // CONSTANTS
-#define SIZE_ORIGINAL_SET 4 // The number of integers in the original set
+#define SIZE_ORIGINAL_SET 6 // The number of integers in the original set
 #define CHROMOSOME_LENGTH SIZE_ORIGINAL_SET // The length of each chromosome
-#define POP_SIZE 5 // The number of chromosomes in a generation
+#define POP_SIZE 6 // The number of chromosomes in a generation
 
 #define MAX_ITER_WITHOUT_IMPROVEMENT 10 // The number of iterations allowed without fitness improvement
 
@@ -17,7 +17,7 @@
 #define WORST_CHROMO POP_SIZE - 1
 
 
-#define NUM_CROSS_OVERS 1
+#define NUM_CROSS_OVERS 2
 #define NUM_MUTATIONS 0
 #define NUM_CHROMOSOMES_REPLACED 2
 
@@ -36,7 +36,8 @@ typedef int set_t[SIZE_ORIGINAL_SET];
 void  getInitialSet(set_t set);
 
 // Main functions for Genetic Algorithm
-int   simulateEvolution(set_t set, chromo_t *generation);
+int   simulateEvolution(set_t set);
+void  makeInitialGenration(chromo_t *generation, set_t set);
 int   performSelection(set_t set, chromo_t *generation);
 int   converges(set_t set, chromo_t *generation, chromo_t *solChromo, int *numIterNoImprov, int prevBestFitness);
 void  generateNewGeneration(chromo_t *generation, set_t set);
