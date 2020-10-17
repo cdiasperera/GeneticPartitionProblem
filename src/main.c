@@ -10,11 +10,13 @@
  * The union of these two sets must be the original set, and the sum of the
  * integers in each set must equal each other.
  * We shall use a genetic algorithm to determine these two sets.
+ * Input: _Precisely_ SIZE_ORIGINAL_SET (20) integers, separated by whitespace
+ * Output: The solution chromosome, and how the chromosome leads to the best
+ * solution it comes to.
  */
 
 #include "partitionProblem.h"
 
-#define DEBUG 0
 
 int main(int argc, char *argv[]) {
   time_t t;
@@ -25,7 +27,7 @@ int main(int argc, char *argv[]) {
   chromo_t generation[POP_SIZE];
 
   getInitialSet(set);
-#if DEBUG 
+#if DEBUG && !SIM_DEBUG
   printOriginalSet(set);
   
   printf("\nGENERATION\n");
@@ -60,10 +62,17 @@ int main(int argc, char *argv[]) {
   }
 #endif
 
-#if !DEBUG
+#if DEBUG && SIM_DEBUG
   int numIterations = simulateEvolution(set);
 
   printf("Number of Iterations: %d\n", numIterations);
 #endif
+
+#if !DEBUG
+  int numIterations = simulateEvolution(set);
+
+  printf("Number of Iterations: %d\n", numIterations);
+#endif 
+
   return 0;
 }
