@@ -1,8 +1,8 @@
-/* file		: partitionProblem.c
- * author	: Channa Dias Perera (c.dias.perera@student.rug.nl)
+/* file     : main.c
+ * author   : Channa Dias Perera (c.dias.perera@student.rug.nl)
  *          : Ola Dybvadskog     (o.dybvadskog@student.rug.nl)
- * date	    : October 
- * version	: 1.0
+ * date     : October 2020
+ * version  : 1.0
  */
 
 /* Description:
@@ -10,13 +10,17 @@
  * The union of these two sets must be the original set, and the sum of the
  * integers in each set must equal each other.
  * We shall use a genetic algorithm to determine these two sets.
+ * 
  * Input: _Precisely_ SIZE_ORIGINAL_SET (20) integers, separated by whitespace
+ * 
  * Output: The solution chromosome, and how the chromosome leads to the best
  * solution it comes to.
+ * 
+ * Note: This program was written as part of the assessment for the course
+ * "Introduction to Computer Science".
  */
 
 #include "partitionProblem.h"
-
 
 int main(int argc, char *argv[]) {
   time_t t;

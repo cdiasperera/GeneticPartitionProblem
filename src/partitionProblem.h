@@ -1,10 +1,16 @@
+/* file     : main.c
+ * author   : Channa Dias Perera (c.dias.perera@student.rug.nl)
+ *          : Ola Dybvadskog     (o.dybvadskog@student.rug.nl)
+ * date     : October 2020
+ * version  : 1.0
+ */
+
 // LIBRARY IMPORTS
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
 #include <limits.h>
-
 
 // CONSTANTS
 
@@ -17,24 +23,30 @@
 #define SIZE_ORIGINAL_SET 20 
 #endif
 
-#define CHROMOSOME_LENGTH SIZE_ORIGINAL_SET // The length of each chromosome
-#define POP_SIZE 10 // The number of chromosomes in a generation
+#define CHROMO_LENGTH SIZE_ORIGINAL_SET
+#define POP_SIZE 10
 
-#define MAX_ITER_WITHOUT_IMPROVEMENT 1000 // The number of iterations allowed without fitness improvement
+// Converge statuses
+#define CONVERGING 0
+#define SOLUTION_FOUND 1
+#define NO_IMPROVEMENT -1
 
+// Indexes of the best/worst chromosome
 #define BEST_CHROMO 0
 #define WORST_CHROMO (POP_SIZE - 1)
 
+// The worst possible fitness
+#define WORST_FITNESS INT_MAX
 
-#define NUM_CROSS_OVERS 3
-#define NUM_MUTATIONS 3
-#define NUM_CHROMOSOMES_REPLACED 2
+// Output constants
+#define DIVIDER_CHAR '='
+#define DIVIDER_LEN 80
 
 // TYPES
 typedef bool gene_t;
 
 typedef struct {
-  gene_t genes[CHROMOSOME_LENGTH];
+  gene_t genes[CHROMO_LENGTH];
   int fitness;
 } chromo_t;
 
@@ -46,31 +58,45 @@ void  getInitialSet(set_t set);
 
 // Main functions for Genetic Algorithm
 int   simulateEvolution(set_t set);
-void  makeInitialGenration(chromo_t *generation, set_t set);
-int   performSelection(set_t set, chromo_t *generation);
-int   converges(set_t set, chromo_t *generation, chromo_t *solChromo, int *numIterNoImprov, int prevBestFitness);
-void  generateNewGeneration(chromo_t *generation, set_t set);
+void  makeInitialGenration(set_t set, chromo_t *generation);
+void  performSelection(set_t set, chromo_t *generation);
+int   converges(
+  set_t set,
+  chromo_t *generation,
+  chromo_t *solChromo,
+  int *numIterNoImprov,
+  int prevBestFitness
+);
+void  generateNewGeneration(set_t set, chromo_t *generation);
 
 // Functions to manipulate choromosomes
 void  sortChromos(chromo_t *generation);
 void  swap(int i, int j, chromo_t *generation);
-void  copyChromosome(chromo_t *dst, chromo_t src);
-void  replaceChromosomes(int *idxStrongChromos, int *idxWeakChromos, chromo_t *generation, int numReplaced);
+void  copyChromo(chromo_t *dst, chromo_t src);
+void  replaceChromos(
+  int *strongChromos,
+  int *weakChromos,
+  chromo_t *generation,
+  int numReplaced
+);
 
 // Functions to modify genes
-void  generateRandomChromosome(chromo_t *chromosome, set_t set);
-void  mutateSingleGene(chromo_t *chromosome, set_t set);
-void  chromoCrossOver(chromo_t *chromo1, chromo_t *chromo2, set_t set);
+void  generateRandomChromo(set_t set, chromo_t *chromo);
+void  mutateSingleGene(set_t set, chromo_t *chromo);
+void  chromoCrossOver(set_t set, chromo_t *chromo1, chromo_t *chromo2);
 
 // Functions related to fitness
-int   heightOfSet(chromo_t chromosome, bool chosenSet, set_t set);
-int   setDifference(chromo_t chromosome, set_t set);
-int   measureFitness(chromo_t chromosome, set_t set);
+int   heightOfSet(set_t set, bool chosenSet, chromo_t chromo);
+int   measureFitness(set_t set, chromo_t chromo);
+int   setDifference(set_t set, chromo_t chromo);
 
 // Utlity Functions - Program specific
-void printOriginalSet(set_t set);
-void printChromosome(chromo_t chromosome);
-void printOutput(chromo_t chromo);
+void  printOriginalSet(set_t set);
+void  printOutput(set_t set, int convergeStatus, chromo_t chromo);
+void  printChromo(chromo_t chromo);
+void  printSets(set_t set, chromo_t chromo);
+void  printSet(set_t set, bool chosenSet, chromo_t chromo);
 
 // Utility Functions - Program agnostic
-int randInt(int lowerBound, int upperBound);
+int   randInt(int lowerBound, int upperBound);
+void printDivider(int len);
