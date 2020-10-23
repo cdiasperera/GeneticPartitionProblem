@@ -1,20 +1,30 @@
-/* file     : main.c
+/* file     : partitionProblem.c
  * author   : Channa Dias Perera (c.dias.perera@student.rug.nl)
  *          : Ola Dybvadskog     (o.dybvadskog@student.rug.nl)
  * date     : October 2020
  * version  : 1.0
  */
 
+/* Description:
+ * Functions to be used for the partition problem.
+ */
 #include "partitionProblem.h"
 #include "simconfig.h"
+#include "output.h"
 
 // Assignment 1: Gathers the initial set containing all the numbers.
-void getInitialSet(set_t set) {
-  for (int i = 0; i < SIZE_ORIGINAL_SET; i++) {
-    scanf("%d", set + i);
-    if (set[i] < 0) {
-      printf("You cannot have negative numbers in the set\n");
-      exit(-1);
+void getInitialSet(set_t set, bool autoCreateSet) {
+  if (autoCreateSet) {
+    for (int i = 0; i < SIZE_ORIGINAL_SET; i++) {
+      set[i] = rand() % 1000;
+    }
+  } else {
+    for (int i = 0; i < SIZE_ORIGINAL_SET; i++) {
+      scanf("%d", set + i);
+      if (set[i] < 0) {
+        printf("You cannot have negative numbers in the set\n");
+        exit(-1);
+      }
     }
   }
 }
@@ -49,6 +59,10 @@ int simulateEvolution(set_t set) {
       prevBestFitness
     );
 
+    if (numIter > MAX_ITER) {
+      convergeStatus = PAST_MAX_ITER;
+    }
+
     if (convergeStatus != CONVERGING) {
       // Print output
       printOutput(set, convergeStatus, solChromo);
@@ -62,7 +76,6 @@ int simulateEvolution(set_t set) {
 
   return numIter;
 }
-
 
 // Makes the initial generation of chromosomes. 
 void makeInitialGenration(set_t set, chromo_t *generation) {
@@ -79,13 +92,13 @@ void performSelection(set_t set, chromo_t *generation) {
   /* Find the weakest and strongest chromosomes. The most extreme chromosomes
    * on either end appear earlier in the list.
    */
-  int weakChromos[NUM_CHROMOS_REPLACED];
-  int strongChromos[NUM_CHROMOS_REPLACED];
+  int weakChromos[simConfig.numChromosReplaced];
+  int strongChromos[simConfig.numChromosReplaced];
 
   /* Since we maintain the invariant that the generation would be sorted along
    * fitness, with the fittest at the front.
    */
-  for (int i = 0; i < NUM_CHROMOS_REPLACED; i++) {
+  for (int i = 0; i < simConfig.numChromosReplaced; i++) {
     weakChromos[i]  = WORST_CHROMO-i;
     strongChromos[i] = i;
   }
@@ -94,7 +107,7 @@ void performSelection(set_t set, chromo_t *generation) {
     strongChromos,
     weakChromos,
     generation,
-    NUM_CHROMOS_REPLACED
+    simConfig.numChromosReplaced
   );
   
   // We modified our population, so we need to sort it.
@@ -117,17 +130,16 @@ int converges(
     (*numIterNoImprov)++;
   }
 
-  if (
-    generation[BEST_CHROMO].fitness == 0 ||
-    *numIterNoImprov > MAX_ITER_WITHOUT_IMPROVEMENT
-  ) {
-    // Either found solution, or we havne't made progress in a while
+  if (generation[BEST_CHROMO].fitness == 0) {
     copyChromo(solChromo, generation[BEST_CHROMO]);
-    return 1;
+    return SOLUTION_FOUND;
+  } else if (*numIterNoImprov > MAX_ITER_WITHOUT_IMPROVEMENT) {
+    copyChromo(solChromo, generation[BEST_CHROMO]);
+    return NO_IMPROVEMENT;
   }
 
   // No solution
-  return 0;
+  return CONVERGING;
 }
 
 /* Randomly mutates previous generation. Makes sure best chromosome is unchanged
@@ -137,7 +149,7 @@ int converges(
  */
 void  generateNewGeneration(set_t set, chromo_t *generation) {
   // Perform cross-overs, i.e: sexual reproduction.
-  for(int i = 0; i < NUM_CROSS_OVERS; i++){
+  for(int i = 0; i < simConfig.numCrossOvers; i++){
     int mutator1;
     int mutator2;
 
@@ -155,7 +167,7 @@ void  generateNewGeneration(set_t set, chromo_t *generation) {
   }
 
   // Perform random mutations.
-  for(int i = 0; i < NUM_MUTATIONS; i++){
+  for(int i = 0; i < simConfig.numMutations; i++){
     // As before, avoid mutating best chromosome.
     int mutator = randInt(1, POP_SIZE);
 
@@ -302,74 +314,6 @@ int setDifference(set_t set, chromo_t chromo) {
   return abs(diff);
 }
 
-// A debugging function, that prints the original set.
-void printOriginalSet(set_t set) {
-  for (int i = 0; i < SIZE_ORIGINAL_SET; i++) {
-    printf("%d ", set[i]);
-  }
-  printf("\n");
-}
-
-// Prints the output for the program based on the solution.
-void printOutput(set_t set, int convergeStatus, chromo_t chromo) {
-  if (convergeStatus == SOLUTION_FOUND) {
-    printf("SOLUTION CHROMOSOME: ");
-    printChromo(chromo);
-    printDivider(DIVIDER_LEN);
-
-    printSets(set, chromo);
-    printDivider(DIVIDER_LEN);
-  } else {
-    printf("NO SOLUTION");
-  }
-
-}
-
-// Prints a specific chromosome to stdin.
-void printChromo(chromo_t chromo) {
-  for(int i = 0; i < CHROMO_LENGTH; i++) {
-    printf("%d ", chromo.genes[i]);
-  }
-  printf("\n");
-}
-
-// Prints out the sets from a chromosome
-void printSets(set_t set, chromo_t chromo) {
-  // Print true set
-  printf("SET 1: ");
-  printSet(set, true, chromo);
-
-
-  // Print false set
-  printf("SET 2: ");
-  printSet(set, false, chromo);
-}
-
-// Prints out a specific set from a chromosome
-void printSet(set_t set, bool chosenSet, chromo_t chromo) {
-  bool prevNumberPresent = false;
-
-  int sum = 0;
-  
-  printf("{");
-  for (int i = 0; i < CHROMO_LENGTH; i++) {
-    if (chromo.genes[i] == chosenSet) {
-      // Add the preceding comma, if there was a number before the current num
-      if (prevNumberPresent) {
-        printf(", ");
-      }
-      prevNumberPresent = true;
-      printf("%d", set[i]);
-
-      sum += set[i];
-    }
-  }
-  printf("}");
-  
-  printf("\t\t || sum = %d", sum);
-  printf("\n");
-}
-
 
 // Generate random int between (incl) lower and (non-incl) upper bounds.
 int randInt(int lowerBound, int upperBound) {
@@ -388,11 +332,4 @@ int randInt(int lowerBound, int upperBound) {
     }
     return range-1;
   }
-}
-
-void printDivider(int len) {
-  for (int i = 0; i < len; i++) {
-    printf("%c", DIVIDER_CHAR);
-  }
-  printf("\n");
 }
