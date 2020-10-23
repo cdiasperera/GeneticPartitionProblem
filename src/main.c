@@ -21,6 +21,8 @@
  */
 
 #include "partitionProblem.h"
+#include "simconfig.h"
+
 
 int main(int argc, char *argv[]) {
   time_t t;
@@ -30,49 +32,56 @@ int main(int argc, char *argv[]) {
   set_t set;
   chromo_t generation[POP_SIZE];
 
-  getInitialSet(set);
-#if DEBUG && !SIM_DEBUG
-  printOriginalSet(set);
-  
-  printf("\nGENERATION\n");
-  for (int i = 0; i < POP_SIZE; i++){
-    generateRandomChromosome(&generation[i], set);
-    printf("Chromosome %d: ", i);
-    printChromosome(generation[i]);
-    printf("fitness: %d\n", generation[i].fitness);
-  }
-  printf("\nAFTER SORTING\n");
-  sortChromos(generation);
-  for (int i = 0; i < POP_SIZE; i++){
-    printf("Chromosome %d: ", i);
-    printChromosome(generation[i]);
-    printf("fitness: %d\n", generation[i].fitness);
+
+#if TESTING
+  int bestIter = INT_MAX;
+  simConfig_t bestConfig;
+
+  // Go upto and including max. Need at least one mutation.
+  // No selection = Very bad performance
+  for (int i = 0; i <= MAX_NUM_CROSS_OVERS; i++) {
+    for (int j = 1; j <= MAX_NUM_MUTATIONS; j++) {
+      for (int k = 1; k <= MAX_NUM_CHROMOS_REPLACED; k++) {
+        // Define simulation configuration programatically
+        simConfig.numCrossOvers = i;
+        simConfig.numMutations = j;
+        simConfig.numChromosReplaced = k;
+
+        // Create set programatically
+        int totalIter = 0;
+        for (int i = 1; i <= CONFIG_NUM_TESTS; i++) {
+          getInitialSet(set, true);
+          totalIter += simulateEvolution(set);
+        }
+
+        int averageIter = totalIter / CONFIG_NUM_TESTS;
+        if (averageIter < bestIter) {
+          bestConfig = simConfig;
+          bestIter = averageIter;
+        }
+        
+        // Print out configuration results.
+        printf("Running average number of iterations: %d\n", averageIter);
+        printConfig(simConfig);
+      }
+    }
   }
 
-  printf("\nAFTER SELECTION\n");
-  performSelection(set, generation);
-  for (int i = 0; i < POP_SIZE; i++){
-    printf("Chromosome %d: ", i);
-    printChromosome(generation[i]);
-    printf("fitness: %d\n", generation[i].fitness);
-  }
-  
-  printf("\nAFTER NEWGENERATION\n");
-  generateNewGeneration(generation, set);
-  for (int i = 0; i < POP_SIZE; i++){
-    printf("Chromosome %d: ", i);
-    printChromosome(generation[i]);
-    printf("fitness: %d\n", generation[i].fitness);
-  }
+  // Print best config
+  printf("Best config:\n");
+  printf("Average number of iterations: %d\n", bestIter);
+  printConfig(bestConfig);
+
 #endif
 
-#if DEBUG && SIM_DEBUG
-  int numIterations = simulateEvolution(set);
+#if !TESTING
+  // Grab predefined simulation configuration
+  simConfig.numCrossOvers = NUM_CROSS_OVERS;
+  simConfig.numMutations = NUM_MUTATIONS;
+  simConfig.numChromosReplaced = NUM_CHROMOS_REPLACED;
 
-  printf("Number of Iterations: %d\n", numIterations);
-#endif
-
-#if !DEBUG
+  // Don't create set programatically, read from input
+  getInitialSet(set, false);
   int numIterations = simulateEvolution(set);
 
   printf("Number of Iterations: %d\n", numIterations);
