@@ -9,8 +9,9 @@
  * Functions definitions to be used for writing to stdin.
  */
 #include "output.h"
-#include "simconfig.h"
 #include "partitionProblem.h"
+#include "simconfig.h"
+#include "testing.h"
 
 // A debugging function, that prints the original set.
 void printOriginalSet(set_t set) {
@@ -28,8 +29,12 @@ void printOutput(set_t set, int convergeStatus, chromo_t chromo) {
     case SOLUTION_FOUND:
       printf("ZERO'D difference of sums!\n");
       break;
+    case PAST_MAX_ITER:
     case NO_IMPROVEMENT:
-      printf("MINIMIZED absolute difference of sums!\n");
+      printf(
+        "MINIMIZED absolute difference of sums: %d!\n",
+        setDifference(set, chromo)
+      );
       break;
     default:
       break;

@@ -12,39 +12,35 @@
 #ifndef SIMCONFIG_H
 #define SIMCONFIG_H
 
+#include <stdio.h>
 #include <stdbool.h>
-#include "partitionProblem.h"
 
-#define TESTING 1
+#define  SIZE_ORIGINAL_SET 20
+#define CHROMO_LENGTH SIZE_ORIGINAL_SET
 
 // Termination conditions
-#define MAX_ITER 1000
-#define MAX_ITER_WITHOUT_IMPROVEMENT  (MAX_ITER / 10)
+#define MAX_T2 500000
+#define MAX_ITER (10 * MAX_T2)
 
 #define POP_SIZE 10
 
-// Mutation configuration
-#define NUM_CROSS_OVERS 1
-#define NUM_MUTATIONS 1
+// Program configuration
+#define NUM_CROSS_OVERS 4
+#define NUM_MUTATIONS 20
 // Maximum = POP_SIZE / 2
-#define NUM_CHROMOS_REPLACED 2
+#define NUM_CHROMOS_REPLACED 1
 
-#define MAX_NUM_CROSS_OVERS (POP_SIZE / 2)
-#define MAX_NUM_MUTATIONS POP_SIZE
-// Maximum = POP_SIZE / 2
-#define MAX_NUM_CHROMOS_REPLACED ((POP_SIZE / 2) - 1)
-
-// Global simulation configuration
+/* Global simulation configuration. Since it's related to all the functions in
+ * we decided to make it a global function.
+ */
 typedef struct {
   int numCrossOvers;
   int numMutations;
   int numChromosReplaced;
+  int t2;
 } simConfig_t;
 
 simConfig_t simConfig;
-
-// Number of iterations to test a configuration
-#define CONFIG_NUM_TESTS 500
 
 // FUNCTIONS
 
