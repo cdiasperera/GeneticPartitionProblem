@@ -12,6 +12,7 @@
 #define OUTPUT_H
 
 #include "partitionProblem.h"
+#include "simconfig.h"
 
 void printOriginalSet(set_t set);
 

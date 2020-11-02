@@ -18,9 +18,10 @@
 #include <time.h>
 #include <limits.h>
 
-// CONSTANTS
-#define  SIZE_ORIGINAL_SET 20
-#define CHROMO_LENGTH SIZE_ORIGINAL_SET
+#include "simconfig.h"
+
+// Maximum value for input sequence when auto-generating
+#define AUTO_GEN_SEQ_MEMBER_MAX (INT_MAX / 20)
 
 // Converge statuses
 #define CONVERGING 0
@@ -54,7 +55,7 @@ typedef int set_t[SIZE_ORIGINAL_SET];
 void  getInitialSet(set_t set, bool autoCreateSet);
 
 // Main functions for Genetic Algorithm
-int   simulateEvolution(set_t set);
+int   simulateEvolution(set_t set, int *solDifference);
 void  makeInitialGenration(set_t set, chromo_t *generation);
 void  performSelection(set_t set, chromo_t *generation);
 int   converges(

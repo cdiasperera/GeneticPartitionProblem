@@ -22,7 +22,8 @@
 
 #include "partitionProblem.h"
 #include "simconfig.h"
-
+#include "testing.h"
+#include "output.h"
 
 int main(int argc, char *argv[]) {
   time_t t;
@@ -32,46 +33,19 @@ int main(int argc, char *argv[]) {
   set_t set;
   chromo_t generation[POP_SIZE];
 
+#if TESTING && FINDT2
+  findT2();
+#endif
 
-#if TESTING
-  int bestIter = INT_MAX;
-  simConfig_t bestConfig;
+#if TESTING && FINDOPTIMALCONFIG
+  determineOptimalSimConfig(set);
+#endif
 
-  // Go upto and including max. Need at least one mutation.
-  // No selection = Very bad performance
-  for (int i = 0; i <= MAX_NUM_CROSS_OVERS; i++) {
-    for (int j = 1; j <= MAX_NUM_MUTATIONS; j++) {
-      for (int k = 1; k <= MAX_NUM_CHROMOS_REPLACED; k++) {
-        // Define simulation configuration programatically
-        simConfig.numCrossOvers = i;
-        simConfig.numMutations = j;
-        simConfig.numChromosReplaced = k;
-
-        // Create set programatically
-        int totalIter = 0;
-        for (int i = 1; i <= CONFIG_NUM_TESTS; i++) {
-          getInitialSet(set, true);
-          totalIter += simulateEvolution(set);
-        }
-
-        int averageIter = totalIter / CONFIG_NUM_TESTS;
-        if (averageIter < bestIter) {
-          bestConfig = simConfig;
-          bestIter = averageIter;
-        }
-        
-        // Print out configuration results.
-        printf("Running average number of iterations: %d\n", averageIter);
-        printConfig(simConfig);
-      }
-    }
+#if TESTING && TESTPARAMS
+  for (int chosenParam = 1; chosenParam <= NUM_PARAMS; chosenParam++) {
+    testParams(set, chosenParam);
+    printDivider(DIVIDER_LEN);
   }
-
-  // Print best config
-  printf("Best config:\n");
-  printf("Average number of iterations: %d\n", bestIter);
-  printConfig(bestConfig);
-
 #endif
 
 #if !TESTING
@@ -79,10 +53,12 @@ int main(int argc, char *argv[]) {
   simConfig.numCrossOvers = NUM_CROSS_OVERS;
   simConfig.numMutations = NUM_MUTATIONS;
   simConfig.numChromosReplaced = NUM_CHROMOS_REPLACED;
+  simConfig.t2 = MAX_T2;
 
   // Don't create set programatically, read from input
   getInitialSet(set, false);
-  int numIterations = simulateEvolution(set);
+  int solDifference;
+  int numIterations = simulateEvolution(set, &solDifference);
 
   printf("Number of Iterations: %d\n", numIterations);
 #endif 

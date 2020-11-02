@@ -16,14 +16,29 @@
 void getInitialSet(set_t set, bool autoCreateSet) {
   if (autoCreateSet) {
     for (int i = 0; i < SIZE_ORIGINAL_SET; i++) {
-      set[i] = rand() % 1000;
+      /* Since we are looking for trends, as long as we have a big enough range
+       * of numbers, we limit the numbers to a certain size.
+       * 
+       * The limit on such a size would be (INT_MAX / 20)
+       */
+      
+      set[i] = rand() % AUTO_GEN_SEQ_MEMBER_MAX;
     }
   } else {
+    int spaceRemaining = INT_MAX;
     for (int i = 0; i < SIZE_ORIGINAL_SET; i++) {
       scanf("%d", set + i);
-      if (set[i] < 0) {
-        printf("You cannot have negative numbers in the set\n");
+      if (set[i] <= 0) {
+        printf("You can only have positive integers in the sequence\n");
         exit(-1);
+      }
+
+      if (set[i] > spaceRemaining) {
+        printf("The input values are too large for this program to handle\n");
+        printf("Make sure that the sum of the inputs is <= %d\n", INT_MAX);
+        exit(-1);
+      } else {
+        spaceRemaining -= set[i];
       }
     }
   }
@@ -32,18 +47,20 @@ void getInitialSet(set_t set, bool autoCreateSet) {
 /* Assignment 7: Simulates evolution of the chromosomes till a solution is found
  * or we have gone many iterations without improvement.
  */
-int simulateEvolution(set_t set) {
+int simulateEvolution(set_t set, int *solDifference) {
   /* The total number of iterations, the number of iterations without
    * improvement.
    */
   int numIter = 0;
   int numIterNoImprov = 0;
-  
+
   int convergeStatus = CONVERGING;
   chromo_t solChromo;
   
   chromo_t generation[POP_SIZE];
   makeInitialGenration(set, generation);
+
+  chromoCrossOver(set, generation, generation+1);
 
   int prevBestFitness = WORST_FITNESS;
 
@@ -66,6 +83,7 @@ int simulateEvolution(set_t set) {
     if (convergeStatus != CONVERGING) {
       // Print output
       printOutput(set, convergeStatus, solChromo);
+      *solDifference = setDifference(set, solChromo);
       return numIter;
     } else {
       // Update previous best fitness, beforem making the next generation
@@ -133,7 +151,7 @@ int converges(
   if (generation[BEST_CHROMO].fitness == 0) {
     copyChromo(solChromo, generation[BEST_CHROMO]);
     return SOLUTION_FOUND;
-  } else if (*numIterNoImprov > MAX_ITER_WITHOUT_IMPROVEMENT) {
+  } else if (*numIterNoImprov > simConfig.t2) {
     copyChromo(solChromo, generation[BEST_CHROMO]);
     return NO_IMPROVEMENT;
   }
@@ -242,7 +260,7 @@ void mutateSingleGene(set_t set, chromo_t *chromo) {
   chromo->fitness = measureFitness(set, *chromo);
 }
 
-// Perform a cross-over muation between two chromosomes.
+// Assignment 3: Perform a cross-over muation between two chromosomes.
 void chromoCrossOver(set_t set, chromo_t *chromo1, chromo_t *chromo2) {
   // There is a potential for simple gene swaps, as crossOverLocation could be 0
   int crossOverLocation = randInt(0, CHROMO_LENGTH);
@@ -327,9 +345,9 @@ int randInt(int lowerBound, int upperBound) {
     // Need to do it baesd on distribution
     for (int i = 0; i < range; i++) {
       if (r >= i*(RAND_MAX / range) && r < (i+1)*(RAND_MAX)/range) {
-        return i;
+        return lowerBound + i;
       }
     }
-    return range-1;
+    return lowerBound + range-1;
   }
 }
