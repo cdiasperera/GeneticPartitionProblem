@@ -28,10 +28,13 @@
 #define NUM_CROSS_OVERS 4
 #define NUM_MUTATIONS 20
 // Maximum = POP_SIZE / 2
-#define NUM_CHROMOS_REPLACED 1
+#define NUM_CHROMOS_REPLACED 2
 
 /* Global simulation configuration. Since it's related to all the functions in
  * we decided to make it a global function.
+ * 
+ * If we decide to test multiple configurations programatically, this struct can
+ * be used.
  */
 typedef struct {
   int numCrossOvers;

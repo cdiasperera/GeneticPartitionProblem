@@ -33,19 +33,8 @@ int main(int argc, char *argv[]) {
   set_t set;
   chromo_t generation[POP_SIZE];
 
-#if TESTING && FINDT2
+#if TESTING
   findT2();
-#endif
-
-#if TESTING && FINDOPTIMALCONFIG
-  determineOptimalSimConfig(set);
-#endif
-
-#if TESTING && TESTPARAMS
-  for (int chosenParam = 1; chosenParam <= NUM_PARAMS; chosenParam++) {
-    testParams(set, chosenParam);
-    printDivider(DIVIDER_LEN);
-  }
 #endif
 
 #if !TESTING

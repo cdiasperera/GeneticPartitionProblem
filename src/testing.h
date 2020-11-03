@@ -21,47 +21,18 @@
 // Constants
 
 // Setting of program. If we're testing and what sort of testing.
-#define TESTING 1
-#define FINDT2 0
-#define TESTPARAMS 1
-#define FINDOPTIMALCONFIG 0
+#define TESTING 0
 
-// Constants for finding t2
+// How finely grained should T2 be
 #define T2_GRAIN 10
+// The minimum percentage similarity sougth
+#define T2_MIN_PER_SIM 0.8
 
-// Constants for when testing trends
-#define CROSSOVERS 1
-#define MUTATIONS 2
-#define REPLACEMENTS 3
-
-#define CROSSOVERS_COL_NAME "C"
-#define MUTATIONS_COL_NAME "M"
-#define REPLACEMENTS_COL_NAME "R"
-
-#define MAX_NUM_CROSS_OVERS (4 * POP_SIZE+1)
-#define MAX_NUM_MUTATIONS (4 * POP_SIZE+1)
-#define MAX_NUM_CHROMOS_REPLACED ((POP_SIZE / 2)+1)
-
-#define NAME_MAX_LEN 20
-#define NUM_PARAMS 3
-
-/* Number of iterations to test a configuration. It's so low due to simulation
- * unfortunatey.
- */
-#define CONFIG_NUM_TESTS 10
 #define T2_CONFIG_NUM_SIMS 100
-
-// T2 for testing, so as to not take too long
-#define TESTING_T2 300000
 
 // Functions
 void findT2();
 bool sufficientT2(int t2);
-
-void  determineOptimalSimConfig(set_t set);
-void  printBestConfig(simConfig_t bestConfig, int avgIter, int longestIter);
-
 int   findAverageIterationLength(int *longestIter);
 
-void  testParams(set_t set, int chosenParam);
 #endif
